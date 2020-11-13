@@ -4,68 +4,309 @@ package model
 type Model struct {
 }
 
-type QueryInfo struct {
-	HostName    string            // 查询host地址信息，如：http://c2-media-mix02.bj:9200/new_cdn_pull_open_detail_online/_search?pretty
-	Group       []string          //分组条件
-	Filter      map[string]string //过滤条件
-	Target      string            //查询目标对象
-	Method      string            //执行方法，支持：avg-平均值，max-最大值，min-最小值，sum-和，count-总数
-	Minute      int               //minute分钟内的数据，比如现在30分钟，求的是26-27分钟的数据，延时3分钟防止无数据
-	StartTime   string            // 开始时间
-	EndTime     string            // 结束时间
-	GroupFilter int               //表示分组条件和过滤添加的个数，如20，表示2个分组条件和0个过滤条件
+const (
+	GF10 = 10
+	GF20 = 20 // 20 表表示2个分组条件，0个过滤条件
+	GF30 = 30
+	GF40 = 40
+	GF50 = 50
+
+	Level1 = 1 //json层次，用于解析json数据
+	Level2 = 2
+	Level3 = 3
+	Level4 = 4
+	Level5 = 5
+	Level6 = 6
+
+	Mark1 = "SuccAndSec" //特殊标记，简化逻辑，表示成功秒开
+
+	HandleMode1 = 0 //用于处理后数据获取post格式，5表示单纯遍历ES，不做处理
+	HandleMode2 = 1 //6表示遍历ES并做处理（如avg，max等操作）
+
+	TarNum2 = 2 //判断输出条件的个数，比如2，说明要2个条件
+)
+// -------------------------------- 特殊标记 --------------------------------
+
+
+
+// -------------------------------- ES处理后不继续处理的配置信息 --------------------------------
+type Target struct {
+	Method string //执行方法，支持：avg-平均值，max-最大值，min-最小值，sum-和，count-总数
+	Tar    string //查询目标对象
 }
 
+type OriginalConf struct {
+	HostName  string //查询host地址信息，如：http://c2-media-mix02.bj:9200/new_cdn_pull_open_detail_online/_search?pretty
+	Minute    int    //minute分钟内的数据，比如现在30分钟，求的是26-27分钟的数据，延时3分钟防止无数据
+	StartTime string //开始时间
+	EndTime   string //结束时间
+	TblName   string //表示数据库表名
+}
+
+// -------------------------------- ES处理后继续处理的配置信息 --------------------------------
+
+type HandleConf struct {
+	HostName    string            //查询host地址信息，如：http://c2-media-mix02.bj:9200/new_cdn_pull_open_detail_online/_search?pretty
+	Group       []string          //分组条件
+	Filter      map[string]string //过滤条件
+	Targets     []Target          //查询目标对象和方法
+	TargetNum   int               //Targets的个数
+	Minute      int               //minute分钟内的数据，比如现在30分钟，求的是26-27分钟的数据，延时3分钟防止无数据
+	StartTime   string            //开始时间
+	EndTime     string            //结束时间
+	GroupFilter int               //表示分组条件和过滤添加的个数，如20，表示2个分组条件和0个过滤条件
+	TblName     string            //表示数据库表名
+}
+
+type Filter struct {
+	Field string //过滤字段
+	Gte   int64  //大于
+	Lte   int64  //小于
+}
+
+// -------------------------------- ES未处理配置信息 --------------------------------
+type UntreatedConf struct {
+	HostName    string   //查询host地址信息，如：http://c2-media-mix02.bj:9200/new_cdn_pull_open_detail_online/_search?pretty
+	Group       []string //分组条件
+	Filters     []Filter //过滤条件
+	Targets     []Target //查询目标对象和方法
+	Minute      int      //minute分钟内的数据，比如现在30分钟，求的是26-27分钟的数据，延时3分钟防止无数据
+	StartTime   int64    //开始时间
+	EndTime     int64    //结束时间
+	GroupFilter int      //表示分组条件和过滤添加的个数，如20，表示2个分组条件和0个过滤条件
+	LiveType    int      //判断push，pull，open
+	DistinctiveMark    string     //特殊标志，用来简化程序，比如 ="succAndSec" 时，直接拼接成功秒开的查询条件
+	TblName     string   //表示数据库表名
+}
+
+// -------------------------------- ES未处理JSON结构体 --------------------------------
 type Oper_target struct {
 	Value float64 `json:"value"`
 }
 
-type CoreBuckets struct {
-	CoreKey        string      `json:"key"`
-	CoreCount      float64     `json:"doc_count"`
-	CoreOperTarget Oper_target `json:"oper_target"`
+type Group6Buckets struct {
+	KeyG6         string      `json:"key"`
+	CountG6       int64       `json:"doc_count"`
+	OperTarget1G6 Oper_target `json:"oper_target1"`
+	OperTarget2G6 Oper_target `json:"oper_target2"`
+	OperTarget3G6 Oper_target `json:"oper_target3"`
+	OperTarget4G6 Oper_target `json:"oper_target4"`
+	OperTarget5G6 Oper_target `json:"oper_target5"`
+	OperTarget6G6 Oper_target `json:"oper_target6"`
+	OperTarget7G6 Oper_target `json:"oper_target7"`
+	OperTarget8G6 Oper_target `json:"oper_target8"`
+}
+
+type Group_by_group6 struct {
+	BucketsG6 []Group6Buckets `json:"buckets"`
+}
+
+type Group5Buckets struct {
+	KeyG5         string          `json:"key"`
+	CountG5       int64           `json:"doc_count"`
+	OperTarget1G5 Oper_target     `json:"oper_target1"`
+	OperTarget2G5 Oper_target     `json:"oper_target2"`
+	OperTarget3G5 Oper_target     `json:"oper_target3"`
+	OperTarget4G5 Oper_target     `json:"oper_target4"`
+	OperTarget5G5 Oper_target     `json:"oper_target5"`
+	OperTarget6G5 Oper_target     `json:"oper_target6"`
+	OperTarget7G5 Oper_target     `json:"oper_target7"`
+	OperTarget8G5 Oper_target     `json:"oper_target8"`
+	Group6        Group_by_group6 `json:"group_by_group"`
+}
+
+type Group_by_group5 struct {
+	BucketsG5 []Group5Buckets `json:"buckets"`
+}
+
+type Group4Buckets struct {
+	KeyG4         string          `json:"key"`
+	CountG4       int64           `json:"doc_count"`
+	OperTarget1G4 Oper_target     `json:"oper_target1"`
+	OperTarget2G4 Oper_target     `json:"oper_target2"`
+	OperTarget3G4 Oper_target     `json:"oper_target3"`
+	OperTarget4G4 Oper_target     `json:"oper_target4"`
+	OperTarget5G4 Oper_target     `json:"oper_target5"`
+	OperTarget6G4 Oper_target     `json:"oper_target6"`
+	OperTarget7G4 Oper_target     `json:"oper_target7"`
+	OperTarget8G4 Oper_target     `json:"oper_target8"`
+	Group5        Group_by_group5 `json:"group_by_group"`
+}
+
+type Group_by_group4 struct {
+	BucketsG4 []Group4Buckets `json:"buckets"`
+}
+
+type Group3Buckets struct {
+	KeyG3         string          `json:"key"`
+	CountG3       int64           `json:"doc_count"`
+	OperTarget1G3 Oper_target     `json:"oper_target1"`
+	OperTarget2G3 Oper_target     `json:"oper_target2"`
+	OperTarget3G3 Oper_target     `json:"oper_target3"`
+	OperTarget4G3 Oper_target     `json:"oper_target4"`
+	OperTarget5G3 Oper_target     `json:"oper_target5"`
+	OperTarget6G3 Oper_target     `json:"oper_target6"`
+	OperTarget7G3 Oper_target     `json:"oper_target7"`
+	OperTarget8G3 Oper_target     `json:"oper_target8"`
+	Group4        Group_by_group4 `json:"group_by_group"`
+}
+
+type Group_by_group3 struct {
+	BucketsG3 []Group3Buckets `json:"buckets"`
+}
+
+type Group2Buckets struct {
+	KeyG2         string          `json:"key"`
+	CountG2       int64           `json:"doc_count"`
+	OperTarget1G2 Oper_target     `json:"oper_target1"`
+	OperTarget2G2 Oper_target     `json:"oper_target2"`
+	OperTarget3G2 Oper_target     `json:"oper_target3"`
+	OperTarget4G2 Oper_target     `json:"oper_target4"`
+	OperTarget5G2 Oper_target     `json:"oper_target5"`
+	OperTarget6G2 Oper_target     `json:"oper_target6"`
+	OperTarget7G2 Oper_target     `json:"oper_target7"`
+	OperTarget8G2 Oper_target     `json:"oper_target8"`
+	Group3        Group_by_group3 `json:"group_by_group"`
 }
 
 type Group_by_group2 struct {
-	CoreBuckets []CoreBuckets `json:"buckets"`
+	BucketsG2 []Group2Buckets `json:"buckets"`
 }
 
-type Buckets struct {
-	Key         string          `json:"key"`
-	Doc_count   float64         `json:"doc_count"`
-	Oper_target Oper_target     `json:"oper_target"` // 试试
-	Group2      Group_by_group2 `json:"group_by_group2"`
+type Group1Buckets struct {
+	KeyG1         int          `json:"key"` //注意类型
+	CountG1       int64           `json:"doc_count"`
+	OperTarget1G1 Oper_target     `json:"oper_target1"` // 试试
+	OperTarget2G1 Oper_target     `json:"oper_target2"`
+	OperTarget3G1 Oper_target     `json:"oper_target3"`
+	OperTarget4G1 Oper_target     `json:"oper_target4"`
+	OperTarget5G1 Oper_target     `json:"oper_target5"`
+	OperTarget6G1 Oper_target     `json:"oper_target6"`
+	OperTarget7G1 Oper_target     `json:"oper_target7"`
+	OperTarget8G1 Oper_target     `json:"oper_target8"`
+	Group2        Group_by_group2 `json:"group_by_group"`
 }
 
 type Group_by_group1 struct {
-	Buckets []Buckets `json:"buckets"`
+	BucketsG1 []Group1Buckets `json:"buckets"`
 }
 
 type Aggregations struct {
-	Group1 Group_by_group1 `json:"group_by_group1"`
+	Group1 Group_by_group1 `json:"group_by_group"`
 }
 
 type Hits struct {
 	Total float64 `json:"total"`
 }
 
-type QueryRes struct {
+type UntreatedJsonRes struct {
 	Hits         Hits         `json:"hits"`
 	Aggregations Aggregations `json:"aggregations"`
 }
 
-type GroupFilter10Res struct {
-	Hits         Hits         `json:"hits"`
-	Aggregations Aggregations `json:"aggregations"`
+// -------------------------------- ES处理后JSON结构体(获取原始数据并处理) --------------------------------
+
+type Field1 struct {
+	Value float64 `json:"value"`
 }
 
-type GF20MysqlInfo struct {
+type Field2 struct {
+	Value float64 `json:"value"`
+}
+
+type HandleBucketsG1 struct {
+	KeyG1      string  `json:"key"`
+	DocCountG1 float64 `json:"doc_count"`
+	Field1     Field1  `json:"field1"`
+	Field2     Field2  `json:"field2"`
+}
+
+type HandleGroup1 struct {
+	Buckets []HandleBucketsG1 `json:"buckets"`
+}
+
+type HandleAggregations struct {
+	Group1 HandleGroup1 `json:"group_by_group1"`
+}
+
+type HandleJsonRes struct {
+	Hits         Hits               `json:"hits"`
+	Aggregations HandleAggregations `json:"aggregations"`
+}
+
+// -------------------------------- ES处理后JSON结构体(获取原始数据) --------------------------------
+
+type Source struct {
+	Country          string  `json:"country"`
+	Province         string  `json:"province"`
+	City             string  `json:"city"`
+	Isp              string  `json:"isp"`
+	Info_duration_ms float64 `json:"info_duration_ms"`
+}
+
+type Hits2 struct {
+	Source Source `json:"_source"`
+}
+
+type HandleHits struct {
+	Total float64 `json:"total"`
+	Hits2 []Hits2 `json:"hits"`
+}
+
+type OriginalJsonRes struct {
+	Hits HandleHits `json:"hits"`
+}
+
+// -------------------------------- MYSQL未处理的结构体 --------------------------------
+type MysqUntreatedInfo struct {
+	Id         int64   `gorm:"id"`
 	Ymd        string  `gorm:"ymd"`
-	AppName    string  `gorm:"appname"`
-	Cv         string  `gorm:"cv"`
-	All_Total  float64 `gorm:"all_total"`  //总数
-	Sec_Total  float64 `gorm:"sec_total"`  //第二层total
-	Res_Total  float64 `gorm:"res_total"`  //结果total
-	Value      float64 `gorm:"value"`      //结果值
+	All        float64 `gorm:"all"`
+	Group1     string  `gorm:"group1"`
+	Group1_Num int64   `gorm:"group1_num"`
+	Group2     string  `gorm:"group2"`
+	Group2_Num int64   `gorm:"group2_num"`
+	Group3     string  `gorm:"group3"`
+	Group3_Num int64   `gorm:"group3_num"`
+	Group4     string  `gorm:"group4"`
+	Group4_Num int64   `gorm:"group4_num"`
+	Group5     string  `gorm:"group5"`
+	Group5_Num int64   `gorm:"group5_num"`
+	Group6     string  `gorm:"group6"`
+	Group6_Num int64   `gorm:"group6_num"`
+	Value1     float64 `gorm:"value1"` //结果值
+	Value2     float64 `gorm:"value2"` //结果值
+	Value3     float64 `gorm:"value3"` //结果值
+	Value4     float64 `gorm:"value4"` //结果值
+	Value5     float64 `gorm:"value5"` //结果值
+	Value6     float64 `gorm:"value6"` //结果值
+	Value7     float64 `gorm:"value7"` //结果值
+	Value8     float64 `gorm:"value8"` //结果值
+	Remark     string  `gorm:"remark"`
 	Event_Time int64   `gorm:"event_time"` //时间戳
+}
+
+// -------------------------------- MYSQL处理后的结构体 --------------------------------
+type MysqHandleInfo struct {
+	Id         int64   `gorm:"id"`
+	Ymd        string  `gorm:"ymd"`
+	All        float64 `gorm:"all"`
+	KeyG1      string  `gorm:"keyG1"`
+	DocCountG1 float64 `gorm:"docCountG1"`
+	Field1     float64 `gorm:"field1"`
+	Field2     float64 `gorm:"field2"`
+	Event_Time int64   `gorm:"event_time"` //时间戳
+}
+
+// -------------------------------- MYSQL处理后的结构体 --------------------------------
+type MysqOriginalInfo struct {
+	Id               int64   `gorm:"id"`
+	Ymd              string  `gorm:"ymd"`
+	All              float64 `gorm:"all"`
+	Country          string  `gorm:"country"`
+	Province         string  `gorm:"province"`
+	City             string  `gorm:"city"`
+	Isp              string  `gorm:"isp"`
+	Info_duration_ms float64 `gorm:"info_duration_ms"`
+	Event_Time       int64   `gorm:"event_time"` //时间戳
 }

@@ -1,11 +1,15 @@
 
-[esConfig]
-clsPushHost="http://c2-media-mix02.bj:9200/newserverlog_cls_publisher_online/_search?pretty"
-cdnPullOpenHost="http://c2-media-mix02.bj:9200/new_cdn_pull_open_detail_online/_search?pretty"
+[esHost]
+pushHost="http://c2-media-mix02.bj:9200/media_new_sdk_push/_search?pretty"
+pullHost="http://c2-media-mix02.bj:9200/media_new_sdk_pull/_search?pretty"
+openHost="http://c2-media-mix02.bj:9200/media_new_sdk_open/_search?pretty"
 
 [server]
 	service_name="media.monitor.realTimeIndex"
 	port = 10000
+
+[sqlTblName]
+esDealResTblName="media_realTime_EsDealResTblName"
 
 [log]
 	level="debug"

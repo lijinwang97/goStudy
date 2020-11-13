@@ -46,9 +46,12 @@ func main() {
 	// init and start http server
 	http.Init(srv, cfg)
 
+	//dao.InitDB()
+
+	server.StartServer()
+
 	defer http.Shutdown()
 
-	StartRealTimeIndex()
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)
@@ -63,9 +66,5 @@ func main() {
 		default:
 		}
 	}
-}
-
-func StartRealTimeIndex() {
-	server.StartServer()
 }
 

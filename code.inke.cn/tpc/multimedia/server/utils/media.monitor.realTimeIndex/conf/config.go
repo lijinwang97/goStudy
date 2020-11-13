@@ -4,17 +4,23 @@ import (
 	"git.inke.cn/inkelogic/daenerys"
 )
 
-type Config struct {
-	EsConfig   EsConfig   `toml:"esConfig`
+type SqlTblName struct {
+	EsDealResTblName string `toml:"esDealRes"`
 }
 
-type EsConfig struct {
-	ClsPushHost string `toml:"clsPushHost"`
-	CdnPullOpenHost string `toml:"cdnPullOpenHost"`
+type Config struct {
+	EsHost   EsHost     `toml:"esConfig`
+	SqlTblName SqlTblName `toml:"sqlTblName`
+}
+
+type EsHost struct {
+	PushHost     string `toml:"pushHost"`
+	PullHost string `toml:"pullHost"`
+	OpenHost string `toml:"openHost"`
 }
 
 var (
-	Conf  *Config
+	Conf *Config
 )
 
 func Init() (*Config, error) {
